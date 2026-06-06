@@ -17,11 +17,35 @@ body {
 
     display: flex;
 
+    flex-direction: row;
+
+    align-items: flex-start;
+
+    gap: 20px;
+
+    padding: 20px;
+}
+
+/* 左侧容器 - 摄像头 */
+#left-panel {
+
+    display: flex;
+
     flex-direction: column;
 
     align-items: center;
+}
 
-    padding: 20px;
+/* 右侧容器 - 状态、调试、日志 */
+#right-panel {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+
+    min-width: 300px;
 }
 
 #video-container {
@@ -67,9 +91,7 @@ body {
 
 #status-panel {
 
-    width: 960px;
-
-    margin-top: 15px;
+    width: 100%;
 
     padding: 15px;
 
@@ -94,9 +116,7 @@ body {
 
 #debug-panel {
 
-    width: 960px;
-
-    margin-top: 15px;
+    width: 100%;
 
     padding: 15px;
 
@@ -112,15 +132,15 @@ body {
 
 #log-panel {
 
-    width: 960px;
-
-    margin-top: 15px;
+    width: 100%;
 
     padding: 15px;
 
     background: #222;
 
     border-radius: 10px;
+
+    flex-shrink: 0;
 }
 
 #log-content {

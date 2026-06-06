@@ -9,6 +9,8 @@ class GestureRecognizer {
 
     this.holdStart = {};
 
+    this.lastGesture = null;
+
     this.holdTime = {
 
       closed_fist: 1000,
@@ -16,6 +18,8 @@ class GestureRecognizer {
       v_gesture: 1000,
 
       index_finger: 1000,
+      
+      three_finger: 1000,
 
       open_palm: 2000
     };
@@ -48,6 +52,8 @@ class GestureRecognizer {
     if (!staticGesture) {
 
       this.holdStart = {};
+
+      this.lastGesture = null;
 
       return null;
     }
@@ -83,8 +89,17 @@ class GestureRecognizer {
       return null;
     }
 
+    if (
+    this.lastGesture ===
+    staticGesture
+    ) {
+        return null;
+    }
+
+    this.lastGesture =staticGesture;
+
     return staticGesture;
-  }
+    }
 }
 
 window.GestureRecognizer =

@@ -1,6 +1,8 @@
 // =========================
 // DOM
 // =========================
+const resultZoom =
+    document.getElementById("result-zoom");
 
 const videoElement =
     document.getElementById("webcam");
@@ -26,6 +28,9 @@ const resultV =
 const resultIndex =
     document.getElementById("result-index");
 
+const resultThree =
+    document.getElementById("result-three");
+
 const resultSwipe =
     document.getElementById("result-swipe");
 
@@ -38,6 +43,28 @@ const logContent =
 
 const recognizer =
     new GestureRecognizer();
+
+    
+GestureEvents.on(
+    GestureType.THREE_FINGER,
+    () => {
+
+        console.log(
+            "Undo Event Triggered"
+        );
+    }
+);
+
+GestureEvents.on(
+    GestureType.POINTER_MOVE,
+    pointer => {
+        // Handle pointer move event
+    }
+);
+
+const zoomDetector =
+    new ZoomDetector();
+
 
 // =========================
 // Log
@@ -90,10 +117,93 @@ function onResults(results) {
     );
 
     if (
-        results.multiHandLandmarks &&
-        results.multiHandLandmarks.length > 0
-    ) {
+    results.multiHandLandmarks &&
+    results.multiHandLandmarks.length > 0
+    ){
 
+        const handsList =
+            results.multiHandLandmarks;
+
+        if (
+            handsList.length === 2
+        ) {
+
+            const hand1 =handsList[0];
+
+            const hand2 =handsList[1];
+
+            const gesture1 =StaticGestureDetector.detect(hand1);
+
+            const gesture2 =StaticGestureDetector.detect(hand2);
+
+            if (
+                gesture1 === "open_palm" &&
+                gesture2 === "open_palm"
+            ) {
+
+                const zoom =
+                    zoomDetector.update(
+                        hand1,
+                        hand2
+                    );
+
+            if (zoom) {
+
+                gestureStatus.textContent =zoom; 
+
+                resultZoom.textContent =zoom;
+
+                addLog(
+                    `Gesture: ${zoom}`
+                );
+
+                }
+
+            drawConnectors(
+                canvasCtx,
+                hand1,
+                HAND_CONNECTIONS,
+                {
+                    color: "#00FF00",
+                    lineWidth: 3
+                }
+            );
+
+            drawLandmarks(
+                canvasCtx,
+                hand1,
+                {
+                    color: "#FF0000",
+                    radius: 2
+                }
+            );
+
+            drawConnectors(
+                canvasCtx,
+                hand2,
+                HAND_CONNECTIONS,
+                {
+                    color: "#00FF00",
+                    lineWidth: 3
+                }
+            );
+
+            drawLandmarks(
+                canvasCtx,
+                hand2,
+                {
+                    color: "#FF0000",
+                    radius: 2
+                }
+            );
+            return;
+            }
+        }
+
+        zoomDetector.reset();
+
+        resultZoom.textContent ="--";
+    
         const landmarks =
             results.multiHandLandmarks[0];
 
@@ -117,7 +227,7 @@ function onResults(results) {
             {
                 color: "#FF0000",
                 lineWidth: 1,
-                radius: 4
+                radius: 2
             }
         );
 
@@ -139,7 +249,18 @@ function onResults(results) {
             recognizer.recognize(
                 landmarks
             );
+        const pointer =
+            PointerTracker.getPointer(
+                landmarks,
+                canvasElement.width,
+                canvasElement.height,
+                staticGesture
+            );
 
+        GestureEvents.emit(
+            GestureType.POINTER_MOVE,
+            pointer
+        );
         // =====================
         // Debug Panel
         // =====================
@@ -164,6 +285,11 @@ function onResults(results) {
                 ? "YES"
                 : "NO";
 
+        resultThree.textContent =
+            staticGesture === "three_finger"
+                ? "YES"
+                : "NO";
+                
         resultSwipe.textContent =
             gesture === "swipe_left" ||
             gesture === "swipe_right"
@@ -178,9 +304,18 @@ function onResults(results) {
 
             gestureStatus.textContent =
                 gesture;
-
+   
             addLog(
                 `Gesture: ${gesture}`
+            );
+
+            console.log(
+                "emit:",
+                gesture
+            );
+
+            GestureEvents.emit(
+                gesture
             );
         }
     }
@@ -203,7 +338,7 @@ const hands =
 
 hands.setOptions({
 
-    maxNumHands: 1,
+    maxNumHands: 2,
 
     modelComplexity: 1,
 

@@ -54,6 +54,16 @@ class StaticGestureDetector {
       return "index_finger";
     }
 
+    // 三指
+    if (
+    index &&
+    middle &&
+    ring &&
+    !pinky
+    ) {
+    return "three_finger";
+    }
+
     return null;
   }
 }

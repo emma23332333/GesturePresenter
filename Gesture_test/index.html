@@ -13,8 +13,10 @@
 
     <div id="app">
 
-        <!-- 摄像头区域 -->
-        <div id="video-container">
+        <!-- 左侧面板 - 摄像头 -->
+        <div id="left-panel">
+
+            <div id="video-container">
 
             <video
                 id="webcam"
@@ -26,10 +28,15 @@
                 id="output-canvas">
             </canvas>
 
+            </div>
+
         </div>
 
-        <!-- 状态栏 -->
-        <div id="status-panel">
+        <!-- 右侧面板 - 状态、调试、日志 -->
+        <div id="right-panel">
+
+            <!-- 状态栏 -->
+            <div id="status-panel">
 
             <h2>Gesture Presenter</h2>
 
@@ -47,10 +54,10 @@
                 </span>
             </div>
 
-        </div>
+            </div>
 
-        <!-- 调试面板 -->
-        <div id="debug-panel">
+            <!-- 调试面板 -->
+            <div id="debug-panel">
 
             <h3>Gesture Detection</h3>
 
@@ -75,14 +82,24 @@
             </div>
 
             <div class="result-row">
+                三指：
+                <span id="result-three">--</span>
+            </div>
+
+            <div class="result-row">
                 Swipe：
                 <span id="result-swipe">--</span>
             </div>
 
-        </div>
+            <div class="result-row">
+                Zoom：
+                <span id="result-zoom">--</span>
+            </div>
 
-        <!-- 日志 -->
-        <div id="log-panel">
+            </div>
+
+            <!-- 日志 -->
+            <div id="log-panel">
 
             <h3>Event Log</h3>
 
@@ -91,6 +108,8 @@
             </div>
 
         </div>
+
+    </div>
 
     </div>
 
@@ -104,11 +123,19 @@
 
     <!-- 手势模块 -->
 
+    <script src="js/gesture/GestureType.js"></script>
+
+    <script src="js/gesture/GestureEventEmitter.js"></script>
+    
+    <script src="js/gesture/PointerTracker.js"></script>
+
     <script src="js/gesture/FingerDetector.js"></script>
 
     <script src="js/gesture/StaticGestureDetector.js"></script>
 
     <script src="js/gesture/SwipeDetector.js"></script>
+
+    <script src="js/gesture/ZoomDetector.js"></script>
 
     <script src="js/gesture/GestureRecognizer.js"></script>
 

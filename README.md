@@ -2,8 +2,6 @@
 
 基于摄像头与手势识别的 Web 幻灯片演示系统。无需鼠标或触控板，通过自然手势完成翻页、缩放平移、批注绘制与激光笔指示，适用于课堂演示、汇报展示等人机交互场景。
 
-[English](#english) · [手势说明](#手势说明) · [项目结构](#项目结构)
-
 ---
 
 ## 功能特性
@@ -99,44 +97,3 @@ hci_finalproject1/
 ├── .gitignore
 └── LICENSE
 ```
-
-## 开发说明
-
-- 项目为纯前端静态应用，无需构建步骤，修改代码后刷新浏览器即可
-- MediaPipe 与 PDF.js 通过 CDN 引入，离线环境需自行配置本地资源
-- `js/test.js` 为历史命名，实际承担应用入口职责，由 `index.html` 中的 ES Module 引入
-
-## 许可证
-
-本项目采用 [MIT License](LICENSE) 开源。  
-[MediaPipe](https://github.com/google/mediapipe) 遵循其原始许可条款。
-
----
-
-## English
-
-**Gesture Presenter** is a browser-based slide presentation system controlled by hand gestures via webcam. Upload images or PDFs and navigate, zoom, pan, annotate, and point—all without a mouse.
-
-### Quick Start
-
-1. Open `index.html` with Live Server, or run `npm install && npm start`
-2. Use `http://localhost:...` (not `127.0.0.1`) for camera access
-3. Allow camera permission and upload files
-
-### Gestures (summary)
-
-| Gesture | Action |
-|---------|--------|
-| Open palm + swipe left / right | Previous / next slide |
-| Two open palms apart / together | Zoom in / out |
-| Two palms move together | Pan |
-| V-sign hold ~1s | Enter annotation (red) |
-| V-sign again in annotation | Blue pen |
-| Three fingers in annotation | Green pen |
-| Index finger in NORMAL | Laser pointer |
-| Open palm hold 2s | Clear annotations |
-| Fist | Exit to NORMAL mode |
-
-See the in-app **? 手势帮助** panel for full details.
-
-Licensed under [MIT License](LICENSE).

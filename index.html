@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GesturePresenter - 图片 / PDF 批注版</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+    <div id="toolbar" style="padding: 10px 15px; background: #222; display: flex; align-items: center; gap: 10px;">
+        <label id="upload-label" for="image-upload" class="toolbar-btn" style="user-select: none;">
+            <!-- 上传图标（盒子+箭头） -->
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M19 15v4H5v-4H3v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4h-2z"/>
+                <path d="M11 16V8.83L8.41 11.41 7 10l5-5 5 5-1.41 1.41L13 8.83V16h-2z"/>
+            </svg>
+            上传文件
+        </label>
+        <input type="file" id="image-upload" accept="image/*,.pdf" multiple style="display:none">
+        <span id="toolbar-file-name" class="toolbar-file-name"></span>
+        <button id="help-btn" class="toolbar-btn" style="margin-left: auto;">
+            ? 手势帮助
+        </button>
+    </div>
+
+    <!-- 关键改动：让 app 高度撑满剩余空间，左右分栏内部高度自适应 -->
+    <div id="app" style="display: flex; gap: 20px; padding: 10px 20px; height: calc(100vh - 50px);">
+        
+        <!-- 左侧图片容器：高度占满 -->
+        <div id="canvas-container" style="position: relative; flex: 1; height: 100%; border: 2px solid #444; background: #000; overflow: hidden;">
+            <div id="mode-indicator" class="mode-indicator" style="pointer-events: none;">
+                <div id="mode-indicator-text">NORMAL</div>
+                <div id="mode-indicator-color" class="color-swatch" title="当前画笔颜色" style="background: red;"></div>
+            </div>
+            <img id="display-image" style="display: block; position: absolute; top: 0; left: 0;">
+            <canvas id="annotation-canvas" style="position: absolute; top: 0; left: 0; pointer-events: none;"></canvas>
+        </div>
+
+        <!-- 右侧面板：滚动避免溢出 -->
+        <div id="right-panel" style="width: 320px; display: flex; flex-direction: column; gap: 15px; height: 100%; overflow-y: auto;">
+            <div id="video-container" style="position: relative; width: 320px; height: 240px; border: 2px solid #444; overflow: hidden; flex-shrink: 0;">
+                <video id="webcam" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1);"></video>
+                <canvas id="output-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></canvas>
+            </div>
+            <div id="status-panel" style="padding: 15px; background: #222; border-radius: 10px;">
+                <h3>Gesture Presenter</h3>
+                <div class="status-item">模式：<span id="mode-text">NORMAL</span></div>
+                <div class="status-item">文件：<span id="file-name">未加载</span></div>
+                <div class="status-item">当前页码：<span id="page-indicator">0 / 0</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 帮助面板 -->
+    <div id="help-modal" class="help-modal">
+        <div id="help-content" class="help-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                <h2 style="margin: 0; font-size: 22px;">🖐️ 手势帮助 </h2>
+                <button id="help-close" class="help-close-btn">✕</button>
+            </div>
+
+            <div style="display: grid; gap: 10px;">
+                <div class="hint-box primary">
+                    <strong>通用</strong><br>
+                    <small>• 请确保摄像头已授权，光线充足以提高识别率。</small><br>
+                    <small>• <strong>握拳</strong>：立即退出当前模式并回到 NORMAL 模式。</small>
+                </div>
+
+                <div class="hint-box danger">
+                    <strong>批注模式（Annotation）</strong><br>
+                    <small>• 进入方式：对着画面做 <strong>V 字手势（✌️）</strong> 开启批注模式，批注模式下无法进行其他操作。</small><br>
+                    <small>• 默认画笔颜色：<span style="color:#ff4d4f; font-weight: bold;">红色</span>。</small><br>
+                    <small>• 在批注模式中：再次做 <strong>V 字手势（✌️）</strong> 将切换为 <span style="color:#4a9eff; font-weight: bold;">蓝色</span>。</small><br>
+                    <small>• <strong>伸出食指、中指、无名指</strong> 手势可将画笔切换为 <span style="color:#51cf66; font-weight: bold;">绿色</span>。</small><br>
+                    <small>• 使用 <strong>单食指（☝️）</strong> 模拟画笔进行圈点批注。</small><br>
+                    <small>• <strong> 五指张开🖐️并静止2秒</strong>：触发清屏。</small><br>
+                </div>
+
+                <div class="hint-box success">
+                    <strong>激光笔功能</strong><br>
+                    <small>• 触发：在 NORMAL 模式下做 <strong>单食指（☝️）</strong> 手势。</small><br>
+                    <small>• 功能：指尖位置会显示红色光点，帮助突出演示内容和指向重点。</small><br>
+                </div>
+
+                <div class="hint-box info">
+                    <strong>缩放/平移功能</strong><br>
+                    <small>• 触发：在 NORMAL 模式下将双手张开（🙌），两手间距变化控制缩放。</small><br>
+                    <small>• 双手稳定移动：平移图片（拖拽行为）。</small>
+                </div>
+
+                <div class="hint-box warn">
+                    <strong>翻页功能</strong><br>
+                    <small>• 在 NORMAL 模式下，手掌五指张开🖐️并做左右快速挥动可翻页（水平滑动）。</small><br>
+                    <small>• 到达首页/末页会自动禁止超出翻页。</small>
+                </div>
+
+            </div>
+
+            <div style="margin-top: 14px; padding: 12px; background: #222; border-radius: 8px; font-size: 12px;">
+                <strong>操作小贴士：</strong><br>
+                • 若手势误触较多，可尝试增大光线或将摄像头稍靠近手部。<br>
+                • 推荐先在 NORMAL 状态下熟悉每个手势再进行演示。<br>
+            </div>
+        </div>
+    </div>
+
+    <!-- MediaPipe 与手势模块 -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="js/gesture/GestureType.js"></script>
+    <script src="js/gesture/GestureEventEmitter.js"></script>
+    <script src="js/gesture/PointerTracker.js"></script>
+    <script src="js/gesture/FingerDetector.js"></script>
+    <script src="js/gesture/StaticGestureDetector.js"></script>
+    <script src="js/gesture/SwipeDetector.js"></script>
+    <script src="js/gesture/ZoomDetector.js"></script>
+    <script src="js/gesture/GestureRecognizer.js"></script>
+    <script src="js/ImageLoader.js"></script>
+
+    <script type="module">
+        import { AnnotationModule } from './js/AnnotationModule.js';
+        import { initApp } from './js/test.js';
+        window.addEventListener('DOMContentLoaded', () => {
+            initApp(AnnotationModule);
+        });
+    </script>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
+</body>
+</html>

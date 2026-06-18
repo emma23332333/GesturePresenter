@@ -1,0 +1,16 @@
+{
+  "name": "gesture-presenter",
+  "version": "1.0.0",
+  "description": "手势控制幻灯片演示系统",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -p 8080 -o",
+    "dev": "npx http-server -p 8080"
+  },
+  "keywords": ["gesture", "presentation", "mediapipe"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

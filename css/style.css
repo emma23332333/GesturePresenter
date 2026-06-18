@@ -1,0 +1,283 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;          /* 防止出现外层滚动条 */
+}
+
+body {
+    background: #111;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+/* 主容器布局（已在 index.html 内联，此处仅作备用） */
+#app {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 10px 20px;
+    height: calc(100vh - 50px);   /* 减去顶部工具栏高度 */
+}
+
+/* 左侧主工作区 */
+#canvas-container {
+    position: relative;
+    flex: 1;
+    height: 100%;
+    border: 2px solid #444;
+    background: #000;
+    overflow: hidden;
+}
+
+#display-image {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* 绘图层 */
+#annotation-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* 浮动模式指示器（显示当前模式与颜色） */
+.mode-indicator {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: rgba(0,0,0,0.45);
+    border-radius: 8px;
+    color: #fff;
+    font-weight: bold;
+    z-index: 50;
+}
+
+.mode-indicator #mode-indicator-text {
+    font-size: 14px;
+}
+
+.color-swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 6px rgba(0,0,0,0.6);
+}
+
+
+/* 右侧面板 */
+#right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 320px;
+    height: 100%;
+    overflow-y: auto;          /* 内容超出可滚动 */
+    flex-shrink: 0;
+}
+
+/* 摄像头小窗 */
+#video-container {
+    position: relative;
+    width: 320px;
+    height: 240px;
+    border: 2px solid #444;
+    overflow: hidden;
+    background: #000;
+    flex-shrink: 0;
+}
+
+#webcam {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+}
+
+#output-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* 状态面板 */
+#status-panel {
+    width: 100%;
+    padding: 15px;
+    background: #222;
+    border-radius: 10px;
+}
+
+.status-item {
+    margin-top: 10px;
+    font-size: 18px;
+}
+
+#status-panel .status-item:nth-child(2) {
+    margin-bottom: 0;
+}
+
+/* 帮助模态框 */
+#help-modal {
+    display: none !important;
+}
+
+#help-modal.show {
+    display: flex !important;
+}
+
+#help-modal::-webkit-scrollbar {
+    width: 8px;
+}
+
+#help-modal::-webkit-scrollbar-track {
+    background: #111;
+}
+
+#help-modal::-webkit-scrollbar-thumb {
+    background: #4a9eff;
+    border-radius: 4px;
+}
+
+#help-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+#help-content::-webkit-scrollbar-track {
+    background: #222;
+}
+
+#help-content::-webkit-scrollbar-thumb {
+    background: #4a9eff;
+    border-radius: 4px;
+}
+
+#help-btn:hover {
+    background: #4a9eff;
+    color: #000;
+    transition: all 0.3s ease;
+}
+ 
+#upload-label:hover {
+    background: #4a9eff;
+    color: #000;
+    transition: all 0.3s ease;
+}
+
+/* 可复用按钮样式（顶部工具栏按钮） */
+.toolbar-btn {
+    padding: 8px 12px;
+    background: #444;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toolbar-btn:hover {
+    background: #4a9eff;
+    color: #000;
+    transition: all 0.2s ease;
+}
+
+.toolbar-file-name {
+    color: #ddd;
+    margin-left: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 420px;
+    display: inline-block;
+}
+
+/* 帮助模态统一类 */
+.help-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.help-modal.show {
+    display: flex !important;
+}
+
+.help-content {
+    background: #1a1a1a;
+    border: 2px solid #4a9eff;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 680px;
+    max-height: 80vh;
+    overflow-y: auto;
+    color: white;
+    box-shadow: 0 8px 32px rgba(74,158,255,0.3);
+}
+
+.help-close-btn {
+    background: none;
+    border: none;
+    color: #4a9eff;
+    font-size: 26px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hint-box {
+    background: #222;
+    padding: 12px;
+    border-left: 4px solid transparent;
+    border-radius: 6px;
+}
+
+.hint-box.primary { border-left-color: #4a9eff; }
+.hint-box.danger { border-left-color: #ff6b6b; }
+.hint-box.success { border-left-color: #51cf66; }
+.hint-box.info { border-left-color: #06b6d4; }
+.hint-box.warn { border-left-color: #ffd43b; }
+.hint-box.alt { border-left-color: #a78bfa; }
+
+/* 图标样式：使用 currentColor 以匹配按钮文字颜色 */
+.toolbar-btn svg {
+    display: inline-block;
+    vertical-align: middle;
+    width: 18px;
+    height: 18px;
+}
+.toolbar-btn svg path { fill: currentColor; }
